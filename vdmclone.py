@@ -500,6 +500,7 @@ def classify(valueArray, classificationTuples, allValueArray=None):
 def simExperiment(dataMatrixNames, similarityMeasures, geoMatrixName="", percentData=False):
 	if geoMatrixName != "":
 		geoMatrix, geoRows = loadSimilarityMatrix(geoMatrixName)
+		geoMatrix = invertMatrix(geoMatrix)
 
 	for simMatrixPrefix, dataMatrixName in dataMatrixNames.items():
 		if percentData:
@@ -512,7 +513,7 @@ def simExperiment(dataMatrixNames, similarityMeasures, geoMatrixName="", percent
 			writeMatrix(simMatrix, "{}-{}-sim.csv".format(simMatrixPrefix, simMeasure), rows, rows)
 			if geoMatrixName != "":
 				fGeoMatrix, _ = filterSimilarityMatrix(geoMatrix, geoRows, rows)
-				print("Linc:", linc(invertMatrix(simMatrix), fGeoMatrix, rows))
+				print("Linc:", linc(simMatrix, fGeoMatrix, rows))
 
 
 def paramExperiment(simMatrixNames, parameters, classificationTuples):
