@@ -1,8 +1,7 @@
 # dmscripts
 dialectometry scripts
 
-## copying scripts into existing directory:
-    git init
-    git remote add origin https://github.com/yvesscherrer/dmscripts.git
-    git pull origin master
+
+##sds_sads
+scripts for dialektkarten.ch and DiG paper experiments
   
