@@ -1,8 +1,6 @@
 # dmscripts
 dialectometry scripts
 
-## copying scripts into existing directory:
-    git init
-    git remote add origin https://github.com/yvesscherrer/dmscripts.git
-    git pull origin master
+## archimob_lm
+use lm-generated similarity matrices (perplexity or KLD) as input for clustering or MDS
   
