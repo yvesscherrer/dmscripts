@@ -49,7 +49,7 @@ def loadPercentDataMatrix(dataMatrixName):
 			continue
 		data[line[0]] = []
 		previousVariable = ""
-		for i, value in enumerate(line[2:]):
+		for i, value in enumerate(line[1:]):
 			variable = variables[i]
 			variant = variants[i]
 			if variable != previousVariable:
