@@ -43,8 +43,8 @@ def loadPercentDataMatrix(dataMatrixName):
 	first = True
 	for line in rd:
 		if first:
-			variables = [x.split("_")[0] for x in line[2:]]
-			variants = [x.split("_")[1] for x in line[2:]]
+			variables = [x.split("_")[0] for x in line[1:]]
+			variants = [x.split("_")[1] for x in line[1:]]
 			first = False
 			continue
 		data[line[0]] = []
