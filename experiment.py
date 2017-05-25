@@ -27,19 +27,19 @@ def correl():
 
 def sims():
 	dataids = ("sds-all", "sds-phon", "sds-morph", "sds-lex", "sads-68ex", "sads-68dom", "sads-68over30", "sads-68over40", "sads-68over50", "sads68dom-sdsall")
-	vdmclone.simExperiment({"csv/{}".format(x.replace("-", "").replace("sads68dom-sdsall", "all")): "data/{}.csv".format(x) for x in dataids}, ["JaccardRIW"])
+	vdmclone.simExperiment({"csv/{}".format(x.replace("-", "").replace("sads68domsdsall", "all")): "data/{}.csv".format(x) for x in dataids}, ["JaccardRIW"])
 
 # all below require sims()
 
 def parameters():
-	dataids = ("sdsall", "sdsphon", "sdsmorph", "sdslex", "sads68ex", "sads68dom", "sads68over30", "sads68over40", "sads68over50")
+	dataids = ("sdsall", "sdsphon", "sdsmorph", "sdslex", "sads68ex", "sads68dom", "sads68over30", "sads68over40", "sads68over50", "all")
 	parameters = ("max", "min", "mean", "stddev", "skew")
 	classes = (("minmw", 20), ("medmw", 20), ("eqint", 20), ("minmw", 20, "US"), ("medmw", 20, "US"), ("eqint", 20, "US"))
 	vdmclone.paramExperiment(["csv/{}-JaccardRIW-sim.csv".format(x) for x in dataids], parameters, classes)
 
 
 def levelcorrelations():
-	comparisons = [("csv/correl-{}-{}".format(x[0], x[1]), "csv/{}-JaccardRIW-sim.csv".format(x[0]), "csv/{}-JaccardRIW-sim.csv".format(x[1])) for x in [("sdsphon", "sdsmorph"), ("sdsphon", "sdslex"), ("sdsphon", "sads68dom"), ("sdsmorph", "sdslex"), ("sdsmorph", "sads68dom"), ("sdslex", "sads68dom")]]
+	comparisons = [("csv/correl-{}-{}".format(x[0], x[1]), "csv/{}-JaccardRIW-sim.csv".format(x[0]), "csv/{}-JaccardRIW-sim.csv".format(x[1])) for x in [("sdsphon", "sdsmorph"), ("sdsphon", "sdslex"), ("sdsphon", "sads68dom"), ("sdsmorph", "sdslex"), ("sdsmorph", "sads68dom"), ("sdslex", "sads68dom"), ("sads68ex", "sads68dom")]]
 	classes = (("minmw", 20), ("medmw", 20), ("eqint", 20), ("minmw", 20, "US"), ("medmw", 20, "US"), ("eqint", 20, "US"))
 	vdmclone.correlExperiment(comparisons, classes)
 
@@ -51,7 +51,7 @@ def levelcorrelations2():
 
 
 def geocorrelations():
-	dataids = ["csv/{}-JaccardRIW-sim.csv".format(x) for x in ("sdsall", "sdsphon", "sdsmorph", "sdslex", "sads68ex", "sads68dom")]
+	dataids = ["csv/{}-JaccardRIW-sim.csv".format(x) for x in ("sdsall", "sdsphon", "sdsmorph", "sdslex", "sads68ex", "sads68dom", "all")]
 	geofile = "data/geodist.csv"
 	classes = (("minmw", 20), ("medmw", 20), ("eqint", 20), ("minmw", 20, "US"), ("medmw", 20, "US"), ("eqint", 20, "US"))
 	vdmclone.geoCorrelExperiment(dataids, geofile, classes)
