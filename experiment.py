@@ -15,7 +15,7 @@ def sads():
 
 def sds():
 	vdmclone.simExperiment({"csv/sds-{}".format(level): "data/sds-{}.csv".format(level) for level in ("all", "phon", "morph", "lex")}, ["JaccardRIW"])
-	vdmclone.paramExperiment(["csv/sds-{}.csv".format(level) for level in ("all", "phon", "morph", "lex")], ["max", "min", "mean", "stddev", "skew"], [("minmw", 6), ("medmw", 6)])
+	vdmclone.paramExperiment(["csv/sds-{}-JaccardRIW-sim.csv".format(level) for level in ("all", "phon", "morph", "lex")], ["max", "min", "mean", "stddev", "skew"], [("minmw", 6), ("medmw", 6)])
 
 def correl():
 	vdmclone.simExperiment({"csv/phon": "data/sds-phon.csv", "csv/morph": "data/sds-morph.csv", "csv/lex": "data/sds-lex.csv", "csv/synt": "data/sads-68dom.csv", "csv/all": "data/sds-all.csv"}, ["JaccardRIW"])
@@ -35,7 +35,7 @@ def parameters():
 	dataids = ("sdsall", "sdsphon", "sdsmorph", "sdslex", "sads68ex", "sads68dom", "sads68over30", "sads68over40", "sads68over50")
 	parameters = ("max", "min", "mean", "stddev", "skew")
 	classes = (("minmw", 20), ("medmw", 20), ("eqint", 20), ("minmw", 20, "US"), ("medmw", 20, "US"), ("eqint", 20, "US"))
-	vdmclone.paramExperiment(["csv/{}-JaccardRIW-sim".format(x) for x in dataids], parameters, classes)
+	vdmclone.paramExperiment(["csv/{}-JaccardRIW-sim.csv".format(x) for x in dataids], parameters, classes)
 
 
 def levelcorrelations():
@@ -56,3 +56,14 @@ def geocorrelations():
 	classes = (("minmw", 20), ("medmw", 20), ("eqint", 20), ("minmw", 20, "US"), ("medmw", 20, "US"), ("eqint", 20, "US"))
 	vdmclone.geoCorrelExperiment(dataids, geofile, classes)
 
+if __name__ == "__main__":
+	if "csv" not in os.listdir("."):
+		os.mkdir("csv")
+	#sads()
+	#sds()
+	#correl()
+	sims()
+	parameters()
+	levelcorrelations()
+	levelcorrelations2()
+	geocorrelations()
