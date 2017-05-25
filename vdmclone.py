@@ -577,14 +577,14 @@ def geoCorrelExperiment(simMatrixNames, geoMatrixName, classificationTuples):
 			paramMatrices[id] = computeCorrelationMatrix(simMatrix, fGeoSimMatrix)
 		else:
 			paramMatrices[id] = computeCorrelationMatrix(simMatrix, geoSimMatrix)
-		if allParamMatrices != None:
+		if allParamMatrices is not None:
 			allParamMatrices = numpy.concatenate((allParamMatrices, paramMatrices[id]))
 		else:
 			allParamMatrices = paramMatrices[id].copy()
 
 	for id in paramMatrices:
 		(finalMatrix, headers) = classify(paramMatrices[id], classificationTuples, allParamMatrices)
-		writeMatrix(finalMatrix, "{}-{}.csv".format(id), geoColumns, headers)
+		writeMatrix(finalMatrix, "{}-geocorrel.csv".format(id), geoColumns, headers)
 
 
 def clusterExperiment(simMatrixNames, clusterTuples):
@@ -594,7 +594,7 @@ def clusterExperiment(simMatrixNames, clusterTuples):
 		clusterColumns = []
 		for algo, nclust in clusterTuples:
 			clum = cluster(simm, rows, algo, nclust)
-			if clusterMatrix != None:
+			if clusterMatrix is not None:
 				clusterMatrix = numpy.hstack((clusterMatrix, clum))
 			else:
 				clusterMatrix = clum
