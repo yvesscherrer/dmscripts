@@ -584,7 +584,7 @@ def geoCorrelExperiment(simMatrixNames, geoMatrixName, classificationTuples):
 
 	for id in paramMatrices:
 		(finalMatrix, headers) = classify(paramMatrices[id], classificationTuples, allParamMatrices)
-		writeMatrix(finalMatrix, "{}-geocorrel.csv".format(id), geoColumns, headers)
+		writeMatrix(finalMatrix, "correl-geo-{}.csv".format(id), geoColumns, headers)
 
 
 def clusterExperiment(simMatrixNames, clusterTuples):
