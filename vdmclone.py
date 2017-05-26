@@ -8,6 +8,7 @@ inputencoding = 'utf-8-sig'
 inputdelimiter = ','
 outputencoding = 'utf-8-sig'
 outputdelimiter = ','
+variablevariantdelim = "_"
 rugpath = "/home/yvessche/RuG-L04/bin/"
 rugencoding = "iso-8859-1"
 
@@ -15,11 +16,13 @@ rugencoding = "iso-8859-1"
 ############## Input/Output ##############
 
 
-def loadDataMatrix(dataMatrixName):
+def loadDataMatrix(dataMatrixName, enc=None, delim=None):
+	if not enc: enc = inputencoding
+	if not delim: delim = inputdelimiter
 	print("Loading data matrix from file", dataMatrixName)
 	columnheaders = []
 	data = {}
-	rd = csv.reader(open(dataMatrixName, 'r', encoding=inputencoding), delimiter=inputdelimiter)
+	rd = csv.reader(open(dataMatrixName, 'r', encoding=enc), delimiter=delim)
 	first = True
 	for line in rd:
 		if first:
@@ -35,16 +38,19 @@ def loadDataMatrix(dataMatrixName):
 	return ([data[x] for x in sorted(data.keys())], columnheaders, sorted(data.keys()))
 
 
-def loadPercentDataMatrix(dataMatrixName):
+def loadPercentDataMatrix(dataMatrixName, enc=None, delim=None, varvardelim=None):
+	if not enc: enc=inputencoding
+	if not delim: delim=inputdelimiter
+	if not varvardelim: varvardelim=variablevariantdelim
 	print("Loading percent data matrix from file", dataMatrixName)
 	columnheaders = []
 	data = {}
-	rd = csv.reader(open(dataMatrixName, 'r', encoding=inputencoding), delimiter=inputdelimiter)
+	rd = csv.reader(open(dataMatrixName, 'r', encoding=enc), delimiter=delim)
 	first = True
 	for line in rd:
 		if first:
-			variables = [x.split("_")[0] for x in line[1:]]
-			variants = [x.split("_")[1] for x in line[1:]]
+			variables = [x.split(varvardelim)[0] for x in line[1:]]
+			variants = [x.split(varvardelim)[1] for x in line[1:]]
 			first = False
 			continue
 		data[line[0]] = []
@@ -60,10 +66,101 @@ def loadPercentDataMatrix(dataMatrixName):
 	return ([data[x] for x in sorted(data.keys())], uniqueVariables, sorted(data.keys()))
 
 
-def loadSimilarityMatrix(simMatrixName):
+# 1 column per variable, not 1 column per variant
+def loadPercentDataMatrix2(dataMatrixName, enc=None, delim=None):
+	if not enc: enc=inputencoding
+	if not delim: delim=inputdelimiter
+	print("Loading percent data matrix from file", dataMatrixName)
+	data = {}
+	rd = csv.reader(open(dataMatrixName, 'r', encoding=enc), delimiter=delim)
+	first = True
+	for line in rd:
+		if first:
+			variables = line[1:]
+			first = False
+			continue
+		data[line[0]] = {}
+		for i, value in enumerate(line[1:]):
+			variable = variables[i]
+			# data[line[0]][variable] = max(float(value), 0.0)	## remove all negative values - doesn't really help
+			data[line[0]][variable] = float(value)
+	return ([data[x] for x in sorted(data.keys())], variables, sorted(data.keys()))
+
+
+def loadFilteredPercentDataMatrix(dataMatrixName, filterfile, filtercolumn, enc=None, delim=None, varvardelim=None, filterenc=None, filterdelim=None, filtervarvardelim=None):
+	if not enc: enc=inputencoding
+	if not delim: delim=inputdelimiter
+	if not varvardelim: varvardelim=variablevariantdelim
+	if not filterenc: filterenc=inputencoding
+	if not filterdelim: filterdelim=inputdelimiter
+	if not filtervarvardelim: filtervarvardelim=variablevariantdelim
+	print("Loading filterfile")
+	rd = csv.reader(open(filterfile, 'r', encoding=filterenc), delimiter=filterdelim)
+	first = True
+	filterFeatures = set()
+	for line in rd:
+		if first:
+			columnId = line.index(filtercolumn)
+			first = False
+		else:
+			if line[columnId] == "True":
+				filterFeatures.add(tuple(line[2].split(filtervarvardelim)))
+
+	print("Loading percent data matrix from file", dataMatrixName)
+	data = {}
+	rd = csv.reader(open(dataMatrixName, 'r', encoding=enc), delimiter=delim)
+	first = True
+	for line in rd:
+		if first:
+			variables = []
+			variants = []
+			for x in line[1:]:
+				t = tuple(x.split(varvardelim))
+				if t not in filterFeatures:
+					variables.append(t[0])
+					variants.append(t[1])
+				else:
+					variables.append("")
+					variants.append("")
+			first = False
+			continue
+		data[line[0]] = []
+		previousVariable = ""
+		for i, value in enumerate(line[1:]):
+			variable = variables[i]
+			variant = variants[i]
+			if variant == "":
+				continue
+			if variable != previousVariable:
+				data[line[0]].append({})
+				previousVariable = variable
+			data[line[0]][-1][variant] = float(value)
+	return ([data[x] for x in sorted(data.keys())], sorted(set(variables)), sorted(data.keys()))
+
+
+def mergeDataMatrices(data1, columns1, rows1, data2, columns2, rows2):
+	if len(rows1) < len(rows2):
+		print("Warning: second matrix is larger than first one, please merge them the other way round to avoid data loss")
+	columns3 = columns1 + columns2
+	data3 = {}
+	empty2line = [{} for i in columns2]
+	j = 0
+	for i in range(len(rows1)):
+		if rows2[j] == rows1[i]:
+			data3[rows1[i]] = data1[i] + data2[j]
+			j += 1
+		else:
+			print(rows1[i], "no match")
+			data3[rows1[i]] = data1[i] + empty2line
+	return ([data3[x] for x in sorted(data3.keys())], columns3, sorted(data3.keys()))
+
+
+def loadSimilarityMatrix(simMatrixName, enc=None, delim=None):
+	if not enc: enc=inputencoding
+	if not delim: delim=inputdelimiter
 	print("Loading similarity matrix from file", simMatrixName)
 	columnheaders = []
-	rd = csv.reader(open(simMatrixName, 'r', encoding=inputencoding), delimiter=inputdelimiter)
+	rd = csv.reader(open(simMatrixName, 'r', encoding=enc), delimiter=delim)
 	first = True
 	i = 0
 	for line in rd:
@@ -77,9 +174,11 @@ def loadSimilarityMatrix(simMatrixName):
 	return (simMatrix, columnHeaders)
 
 
-def loadParamMatrix(matrixName):
+def loadParamMatrix(matrixName, enc=None, delim=None):
+	if not enc: enc=inputencoding
+	if not delim: delim=inputdelimiter
 	print("Loading parameter matrix from file", matrixName)
-	rd = csv.reader(open(matrixName, 'r', encoding=inputencoding), delimiter=inputdelimiter)
+	rd = csv.reader(open(matrixName, 'r', encoding=enc), delimiter=delim)
 	first = True
 	values = {}
 	for line in rd:
@@ -93,10 +192,12 @@ def loadParamMatrix(matrixName):
 	return values
 
 
-def writeMatrix(matrix, matrixName, rowHeaders=None, columnHeaders=None):
+def writeMatrix(matrix, matrixName, rowHeaders=None, columnHeaders=None, enc=None, delim=None):
+	if not enc: enc=outputencoding
+	if not delim: delim=outputdelimiter
 	print("Writing result matrix to file", matrixName)
-	f = open(matrixName, 'w', encoding=outputencoding)
-	wr = csv.writer(f, delimiter=outputdelimiter)
+	f = open(matrixName, 'w', encoding=enc)
+	wr = csv.writer(f, delimiter=delim)
 	if columnHeaders:
 		wr.writerow(["LOC"] + columnHeaders)
 	for i in range(matrix.shape[0]):
@@ -143,6 +244,17 @@ def EuclidRIW(a, b):
 		variablesum = 0.0
 		for key in set(a[i].keys()) | set(b[i].keys()):
 			variablesum += (a[i].get(key, 0.0) - b[i].get(key, 0.0)) ** 2
+		sim += (1.0 - math.sqrt(variablesum))
+		nbComp += 1
+	return sim / nbComp
+
+
+# 1 column per variable, not 1 column per variant
+def EuclidRIW2(a, b):
+	sim = 0.0
+	nbComp = 0
+	for variable in set(a.keys()) | set(b.keys()):
+		variablesum = (a.get(variable, 0.0) - b.get(variable, 0.0)) ** 2
 		sim += (1.0 - math.sqrt(variablesum))
 		nbComp += 1
 	return sim / nbComp
@@ -595,13 +707,13 @@ def clusterExperiment(simMatrixNames, clusterTuples):
 		for algo, nclust in clusterTuples:
 			clum = cluster(simm, rows, algo, nclust)
 			if clusterMatrix is not None:
-				clusterMatrix = numpy.hstack((clusterMatrix, clum))
+				clusterMatrix = numpy.vstack((clusterMatrix, clum.T))
 			else:
 				clusterMatrix = clum
 			print(clum.shape, clusterMatrix.shape)
 			clusterColumns.append("{}{}".format(algo.upper(), nclust))
 			# todo: output dendrogram
-		writeMatrix(clusterMatrix, simMatrixName.replace("-sim.csv", "-clu.csv"), rows, clusterColumns)
+		writeMatrix(clusterMatrix.T, simMatrixName.replace("-sim.csv", "-clu.csv"), rows, clusterColumns)
 
 
 def mdsExperiment(simMatrixNames, ndim):
