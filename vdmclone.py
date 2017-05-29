@@ -609,14 +609,20 @@ def classify(valueArray, classificationTuples, allValueArray=None):
 ############## Experiments ##############
 
 
-def simExperiment(dataMatrixNames, similarityMeasures, geoMatrixName="", percentData=False):
+def simExperiment(dataMatrixNames, similarityMeasures, geoMatrixName="", percentData=False, splitVariables=True):
 	if geoMatrixName != "":
 		geoMatrix, geoRows = loadSimilarityMatrix(geoMatrixName)
 		geoMatrix = invertMatrix(geoMatrix)
 
 	for simMatrixPrefix, dataMatrixName in dataMatrixNames.items():
 		if percentData:
-			(dataMatrix, _, rows) = loadPercentDataMatrix(dataMatrixName)
+			if splitVariables:
+				(dataMatrix, _, rows) = loadPercentDataMatrix(dataMatrixName)
+			else:
+				(dataMatrix, _, rows) = loadPercentDataMatrix2(dataMatrixName)
+				if "EuclidRIW2" not in similarityMeasures:
+					print("Only EuclidRIW2 is supported without splitVariables!")
+					return
 		else:
 			(dataMatrix, _, rows) = loadDataMatrix(dataMatrixName)
 
@@ -664,7 +670,7 @@ def correlExperiment(correlationTuples, classificationTuples):
 			simMatrix2, rows2 = filterSimilarityMatrix(simMatrix2, rows2, rows1)
 		rowTitles[id] = rows1
 		paramMatrices[id] = computeCorrelationMatrix(simMatrix1, simMatrix2)
-		if allParamMatrices != None:
+		if allParamMatrices is not None:
 			allParamMatrices = numpy.concatenate((allParamMatrices, paramMatrices[id]))
 		else:
 			allParamMatrices = paramMatrices[id].copy()
