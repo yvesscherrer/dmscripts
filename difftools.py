@@ -26,6 +26,7 @@ def createDiffDataMatrix(infilename1, infilename2, outfilename):
 			i2 = r2.index(loc)
 			distRow = [Euclid(m1[i1][c], m2[i2][c]) for c in range(len(c1))]
 			m3.append(distRow)
+			r3.append(loc)
 	vdmclone.writeMatrix(numpy.array(m3), outfilename, r3, c1)
 
 
